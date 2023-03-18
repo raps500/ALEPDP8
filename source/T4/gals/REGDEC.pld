@@ -1,0 +1,49 @@
+GAL22V10        ; Register decoder             
+REGDEC          ;
+
+SEQ0  SEQ1  SEQ2  SEQ3  IR11  IR10  IR9   IR8    IR7   IR6   IR5   GND 
+IR4   IR3   IR2   IR1   IR0   RRF0  RRF1  RRF    WRF0  WRF1  WRF   VCC
+
+
+RRF0 =                                      ; SEQ0 fetch
+                                            ; SEQ1 increment PC
+RRF1 = SEQ0 +                               ; SEQ0 fetch
+       SEQ1                                 ; SEQ1 1increment PC
+RRF  = SEQ0 +                               ; SEQ0 fetch
+       SEQ1                                 ; SEQ1 1increment PC
+
+WRF0 = /SEQ1 +                              ; increment PC
+        SEQ2 * 
+WRF1 = SEQ1  +                              ; increment PC
+WRF  = 
+
+Y1.R  = A * B			; Y1 is a registered output => .R
+Y1.E  = Enable1
+
+Y2.R  = C
+Y2.E  = Enable2 * Y4		; Attention: there is a feedback of Y4
+				; (Y4 is defined as output but it's
+				; used as input again)
+
+Y3    = Enable2 * Y4		; there is a feedback again
+
+Y4    = D + E + F
+
+
+AR    = F * AsyncRe		; define asynchronous reset
+
+SP    = SyncPre			; define synchronous preset
+
+
+DESCRIPTION
+Register decoder
+outputs the right read and write registers depending on the opcode
+and sequence
+AC = 00 accumulator
+PC = 01 program counter
+Y  = 10 address register
+
+SEQ 0 : fetch PC -> MA, latch SR
+SEQ 1 : latch MA 
+SEQ 2 :
+

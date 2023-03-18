@@ -1,0 +1,75 @@
+                                    
+
+;AND     0xxx         
+;          2      1        2      1      1       1     5  1     1    1   1     1    1       1        1       1
+;   RFR_ADDR    RFR RFW_ADDR    RFW TEMPOE  TEMPLD  FUNC SR  SROE    LLD READ WRITE  MAL     MAH     MALD    IRLD
+;  AC PC Q Y    -   AC PC Q Y   -   -       -       AND  -   -       -   -       -   IR IB   0 IB    -       -
+        PC      RFR     AC      -   -       -       AND  -   SROE    -   -       -   IB      IB      MALD    -   ; PC->MA
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      -       IRLD; [MEM]->IR
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IR      IB      MALD    -   ; ADDR->MA
+        PC      RFR     PC      RFW -       -       ADC  -   SROE    -   -       -   IB      IB      -       -   ; PC + 1 -> PC
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      MALD    -   ; [ADDR]->MA if indirect 
+        AC      -       AC      -   -       TEMPLD  AND  -   -       -   READ    -   IB      IB      -       -   ; [ADDR]->TEMP load from mem
+        AC      RFR     AC      RFW TEMPOE  -       AND  -   SROE    -   -       -   IB      IB      -       -   ; AC and TEMP->AC
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+
+;TAD     1xxx
+;          2      1        2      1      1       1     5  1     1    1   1     1    1       1        1       1
+;   RFR_ADDR    RFR RFW_ADDR    RFW TEMPOE  TEMPLD  FUNC SR  SROE    LLD READ WRITE  MAL     MAH     MALD    IRLD
+;  AC PC Q Y    -   AC PC Q Y   -   -       -       AND  -   -       -   -       -   IR IB   0 IB    -       -
+        PC      RFR     AC      -   -       -       AND  -   SROE    -   -       -   IB      IB      MALD    -   ; PC->MA
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      -       IRLD; [MEM]->IR
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IR      IB      MALD    -   ; ADDR->MA
+        PC      RFR     PC      RFW -       -       ADC  -   SROE    -   -       -   IB      IB      -       -   ; PC + 1 -> PC
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      MALD    -   ; [ADDR]->MA if indirect 
+        AC      -       AC      -   -       TEMPLD  AND  -   -       -   READ    -   IB      IB      -       -   ; [ADDR]->TEMP load from mem
+        AC      RFR     AC      RFW TEMPOE  -       ADD  -   SROE    -   -       -   IB      IB      -       -   ; AC + TEMP->AC
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+
+;ISZ     2xxx
+;          2      1        2      1      1       1     5  1     1    1   1     1    1       1        1       1
+;   RFR_ADDR    RFR RFW_ADDR    RFW TEMPOE  TEMPLD  FUNC SR  SROE    LLD READ WRITE  MAL     MAH     MALD    IRLD
+;  AC PC Q Y    -   AC PC Q Y   -   -       -       AND  -   -       -   -       -   IR IB   0 IB    -       -
+        PC      RFR     AC      -   -       -       AND  -   SROE    -   -       -   IB      IB      MALD    -   ; PC->MA
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      -       IRLD; [MEM]->IR
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IR      IB      MALD    -   ; ADDR->MA
+        PC      RFR     PC      RFW -       -       ADC  -   SROE    -   -       -   IB      IB      -       -   ; PC + 1 -> PC
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      MALD    -   ; [ADDR]->MA if indirect 
+        AC      -       AC      -   -       TEMPLD  AND  -   -       -   READ    -   IB      IB      -       -   ; [ADDR]->TEMP load from mem
+        AC      -       AC      -   TEMPOE  -       ADC  -   SROE    -   WRITE   -   IB      IB      -       -   ; 1 + TEMP->[ADDR]
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+
+;DCA     3xxx
+;          2      1        2      1      1       1     5  1     1    1   1     1    1                1       1
+;   RFR_ADDR    RFR RFW_ADDR    RFW TEMPOE  TEMPLD  FUNC SR  SROE    LLD READ WRITE  PAGEZERO     MALD    IRLD
+;  AC PC Q Y    -   AC PC Q Y   -   -       -       AND  -   -       -   -       -   PZ           -       -
+        PC      RFR     AC      -   -       -       AND  -   SROE    -   -       -   -            MALD    -   ; PC->MA
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   -            -       IRLD; [MEM]->IR
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   -            MALD    -   ; ADDR->MA
+        PC      RFR     PC      RFW -       -       ADC  -   SROE    -   -       -   -            -       -   ; PC + 1 -> PC
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   -            MALD    -   ; [ADDR]->MA if indirect 
+        AC      RFR     AC      -   -       -       ADD  -   SROE    -   WRITE   -   -            -       -   ; AC -> [ADDR]
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   -            -       -   ; NOP
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   -            -       - - OP
+  JMS     4xxx
+;          2      1        2      1      1       1     5  1     1    1   1     1    1       1        1       1
+;   RFR_ADDR    RFR RFW_ADDR    RFW TEMPOE  TEMPLD  FUNC SR  SROE    LLD READ WRITE  MAL     MAH     MALD    IRLD
+;  AC PC Q Y    -   AC PC Q Y   -   -       -       AND  -   -       -   -       -   IR IB   0 IB    -       -
+; ---------------------------------------------------------------------------------------------------------------; 
+        PC      RFR     AC      -   -       -       AND  -   SROE    -   -       -   IB      IB      MALD    -   ; PC->MA
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      -       IRLD; [MEM]->IR
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IR      IB      MALD    -   ; ADDR->MA
+        PC      RFR     PC      RFW -       -       ADC  -   SROE    -   -       -   IB      IB      -       -   ; PC + 1 -> PC
+        AC      -       AC      -   -       -       AND  -   -       -   READ    -   IB      IB      MALD    -   ; [ADDR]->MA if indirect 
+        PC      RFR     AC      -   -       -       ADD  -   SROE    -   WRITE   -   IB      IB      -       -   ; PC+1 -> [ADDR]
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+        AC      -       AC      -   -       -       AND  -   -       -   -       -   IB      IB      -       -   ; NOP
+
+;JMP     5xxx
+
+;IOT     6xxx
+
+;OPR     7xxx
